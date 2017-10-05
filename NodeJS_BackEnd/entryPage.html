@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<head>
+<title>videoMerge</title>
+</head>
+
+<body>
+
+    <button id='video-convert-button'>convertVideo</button>
+
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>  
+      <!-- <script src='ClientSide.js'></script>   -->
+      <script>
+        $('#video-convert-button').click(function() {
+            $.ajax({
+                type: 'POST',
+                url: 'http://127.0.0.1:8080/VideoConversion'
+                // success:function(data) {
+                //     console.log("success");
+                // }       
+            });
+        });
+
+      </script>    
+</body>
