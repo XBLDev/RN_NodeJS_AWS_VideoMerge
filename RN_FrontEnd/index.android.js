@@ -26,6 +26,7 @@ var ScreenHeight = Dimensions.get('window').height;
 var ImagePicker = NativeModules.ImageCropPicker;
 var AWS = require('aws-sdk/dist/aws-sdk-react-native');
 import RNFetchBlob from 'react-native-fetch-blob';
+// import java.io.FileInputStream;
 
 
 
@@ -51,6 +52,7 @@ export default class RNcallserver extends Component {
       fileuploading:false,
       fileuploadingProgress:0,
       fileuploadingTotal:0,
+      fileStreamChunk: ''
       
   }
 
@@ -106,53 +108,144 @@ export default class RNcallserver extends Component {
       AWS.config.update({region: 'us-west-2', credentials: myCredentials});
 
       var s3 = new AWS.S3();
-      var filestream = RNFetchBlob.fs.readStream(PATH_TO_THE_FILE,'base64',4095)
+      
+      var data='';
+      this.setState({fileuploading: true});
+
+      // var filestream = 
+      RNFetchBlob.fs.readStream(PATH_TO_THE_FILE,'base64',4095)
       .then((ifstream) => 
         {
-        ifstream.open()
-        ifstream.onData((chunk) => {
-          // when encoding is `ascii`, chunk will be an array contains numbers 
-          // otherwise it will be a string 
-          data += chunk
-        })
-        ifstream.onError((err) => {
-          console.log('oops', err)
-        })
-        ifstream.onEnd(() => {  
-          <Image source={{ uri : 'data:image/png,base64' + data }} />
-        })
-      })
+          ifstream.open();
+
+          ifstream.onError((err) => {
+            
+              Alert.alert(
+                'AWS UPLOAD',
+                'Failed!',
+                [
+                  // {text: 'Ask me later'},
+                  {text: 'FILE STREAM FAILED'},
+                ],
+                { cancelable: true }
+              )  
+          })
+          // var uploadparams = {Bucket: myBucket, 
+          //                     Key: "Vid2.mp4", 
+          //                     Body: ifstream};
+          // s3.upload(uploadparams, function(err, data) {
+          //     if(err)
+          //     {
+          //       Alert.alert(
+          //         'AWS UPLOAD',
+          //         'Failed!',
+          //         [
+          //           // {text: 'Ask me later'},
+          //           {text: 'UPLOAD FAILED'},
+          //         ],
+          //         { cancelable: true }
+          //       )  
+          //     }
+          //     else
+          //     {
+          //       Alert.alert(
+          //         'AWS UPLOAD',
+          //         'Succeed!',
+          //         [
+          //           // {text: 'Ask me later'},
+          //           {text: 'UPLOAD SUCCEEDED'},
+          //         ],
+          //         { cancelable: true }
+          //       )  
+          //     }
+          // });
+          ifstream.onData((chunk) => {
+            // when encoding is `ascii`, chunk will be an array contains numbers 
+            // otherwise it will be a string 
+            // data += chunk
+            data = data.concat(chunk.toString());
+            // this.setState({fileStreamChunk: chunk.toString()});
+            // this.setState({fileStreamChunk: data});            
+          })
+
+          ifstream.onEnd(() => {
+
+            // data = 'data:image/png,base64'.concat(data);
+            this.setState({fileStreamChunk: data.length}); 
+            var uploadparams = {Bucket: myBucket, Key: "testConvertedImgFile.mp4", Body: data, ACL: "public-read"}; 
+            s3.upload(uploadparams, function(err, data) {
+                if(err)
+                {
+                  Alert.alert(
+                    'AWS UPLOAD',
+                    'Failed!',
+                    [
+                      // {text: 'Ask me later'},
+                      {text: 'UPLOAD FAILED'},
+                    ],
+                    { cancelable: true }
+                  )  
+                }
+                else
+                {
+                  Alert.alert(
+                    'AWS UPLOAD',
+                    'Succeed!',
+                    [
+                      // {text: 'Ask me later'},
+                      {text: 'UPLOAD SUCCEEDED'},
+                    ],
+                    { cancelable: true }
+                  )                    
+                }
+            })
+            
+            // this.setState({fileuploading: true});            
+            // Alert.alert(
+            //   'File Stream',
+            //   'Succeed!',
+            //   [
+            //     // {text: 'File Stream'},
+            //     {text: data},
+            //   ],
+            //   { cancelable: true }
+            // )             
+          })
+      });
 
         
-      var uploadparams = {Bucket: myBucket, Key: "videotoconvert.mp4", Body: RNFetchBlob.fs.readStream(PATH_TO_THE_FILE,'base64',4095)};
+      // var uploadparams = {
+      //   Bucket: myBucket, 
+      //   Key: "testConvertedVideoFile.txt", 
+      //   Body: 'sometestfile'};
       
-      s3.upload(uploadparams, function(err, data) {
-        if(err)
-        {
-          Alert.alert(
-            'AWS UPLOAD',
-            'Failed!',
-            [
-              // {text: 'Ask me later'},
-              {text: 'UPLOAD FAILED'},
-            ],
-            { cancelable: true }
-          )  
-        }
-        else
-        {
-          Alert.alert(
-            'AWS UPLOAD',
-            'Succeed!',
-            [
-              // {text: 'Ask me later'},
-              {text: 'UPLOAD SUCCEEDED'},
-            ],
-            { cancelable: true }
-          )  
-        }
-        // console.log(err, data);
-      });      
+      // s3.upload(uploadparams, function(err, data) {
+      //   if(err)
+      //   {
+      //     Alert.alert(
+      //       'AWS UPLOAD',
+      //       'Failed!',
+      //       [
+      //         // {text: 'Ask me later'},
+      //         {text: 'UPLOAD FAILED'},
+      //       ],
+      //       { cancelable: true }
+      //     )  
+      //   }
+      //   else
+      //   {
+      //     Alert.alert(
+      //       'AWS UPLOAD',
+      //       'Succeed!',
+      //       [
+      //         // {text: 'Ask me later'},
+      //         {text: 'UPLOAD SUCCEEDED'},
+      //       ],
+      //       { cancelable: true }
+      //     )  
+      //   }
+      //   // console.log(err, data);
+      // });      
 
     }    
   }
@@ -471,7 +564,8 @@ export default class RNcallserver extends Component {
                         ' '
                       ):
                       (
-                        this.state.fileuploadingProgress.toString().concat('/').concat(this.state.fileuploadingTotal.toString())
+                        this.state.fileStreamChunk
+                        // this.state.fileuploadingProgress.toString().concat('/').concat(this.state.fileuploadingTotal.toString())
                       )
                     }
                 </Text>
