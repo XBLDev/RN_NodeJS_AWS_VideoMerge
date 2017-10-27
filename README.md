@@ -11,12 +11,12 @@ videos are of different FPS/resolution. Video merging with RN but only with vide
 found at: https://github.com/XBLDev/onMyWayBecomingFullStack/tree/master/ReactNativeRelated/ReactNativeNav
 
 Basic flow and structure of this app, 25/10/2017, 7:43pm:
-1. On RN frontend, choose a video the user wants to convert with package: https://www.npmjs.com/package/react-native-image-crop-picker(DONE)
+1. On RN frontend, choose a video the user wants to convert with package: https://www.npmjs.com/package/react-native-image-crop-picker (DONE)
 2. Once a file is chosen, first generate a buffer with react-native-fetch-blob: https://www.npmjs.com/package/react-native-fetch-blob, and once the buffer is created, 
-use AWS SDK for React Native to upload the file to S3 bucket: https://github.com/aws/aws-sdk-js(ONGOING) 
-3. Once uploaded the video, in the callback function, use fetch to send POST reqeust to the NodeJS backend, sample code: https://facebook.github.io/react-native/docs/network.html, send the uploaded video's S3 URL as a parameter.(DONE)
+use AWS SDK for React Native to upload the file to S3 bucket: https://github.com/aws/aws-sdk-js (ONGOING) 
+3. Once uploaded the video, in the callback function, use fetch to send POST reqeust to the NodeJS backend, sample code: https://facebook.github.io/react-native/docs/network.html, send the uploaded video's S3 URL as a parameter. (DONE)
 4. Create an Ubuntu Server instance on Amazon EC2. Because we want to use handbrakejs: https://github.com/75lb/handbrake-js, and handbrakejs only runs on ubuntu/windows. Previous failed attempt of trying to run handbrakejs on other types of server is also on my git.(DONE)
-5. Install handbrakejs on Ubuntu server by following the instructions: https://github.com/75lb/handbrake-js(DONE)
+5. Install handbrakejs on Ubuntu server by following the instructions: https://github.com/75lb/handbrake-js (DONE)
 6. Upon getting POST from RN front end, the server first parses the parameter, uses it to download the video, upon download finish, calls a handbrake async function, which will convert the video to another video based on the specifications such as FPS values, file format etc. The converted video is then uploaded to S3, and upon uploading finish, send the upload URL as a message back to RN front end, which then uses the URL to download the converted video. The previous(05/10/2017) backend code is mostly from: https://github.com/kevinchisholm/handling-POST-requests-with-express-and-node.js. (ONGOING)
 
 Previous flow of video merging with RN and Meteor: Front End: https://github.com/XBLDev/onMyWayBecomingFullStack/tree/master/ReactNativeRelated/ReactNativeNav,
