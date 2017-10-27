@@ -172,7 +172,7 @@ export default class RNcallserver extends Component {
 
             // data = 'data:image/png,base64'.concat(data);
             this.setState({fileStreamChunk: data.length}); 
-            var uploadparams = {Bucket: myBucket, Key: "testConvertedImgFile.mp4", Body: data, ACL: "public-read"}; 
+            var uploadparams = {Bucket: myBucket, Key: "testConvertedImgFile.png", Body: data, ACL: "public-read"}; 
             s3.upload(uploadparams, function(err, data) {
                 if(err)
                 {
@@ -188,15 +188,97 @@ export default class RNcallserver extends Component {
                 }
                 else
                 {
-                  Alert.alert(
-                    'AWS UPLOAD',
-                    'Succeed!',
-                    [
-                      // {text: 'Ask me later'},
-                      {text: 'UPLOAD SUCCEEDED'},
-                    ],
-                    { cancelable: true }
-                  )                    
+                  // const data = {foo:1, bar:2};
+                  // fetch(`https://api.parse.com/1/users?foo=${data.foo}&bar=${data.bar}`, {
+                  //   method: "GET",
+                  //   headers: headers,   
+                  //   body:body
+                  // })
+                  
+                  // xhr.open('get', '/news/requestNews?news='+encodeURI(this.state.currentURL)+'&language='+encodeURIComponent(currentLanguage), true);
+                  // const data = {videoURL: data.Location};
+                  fetch('http://SOMEURL/VideoConversionRN',{
+                    method: 'POST',
+                    headers: {
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      fileURL: data.Location,
+                    })
+                      // body: JSON.stringify({
+                      //   fileURL: data.Location,
+                      // })
+                    }
+                  )
+                  .then((response) => {
+                    // response.json();
+                    return response.json();
+                    
+                    // Alert.alert(
+                    //   'Post Request to server',
+                    //   'Succeed! Got response from server!',
+                    //   [
+                    //       // {text: 'Ask me later'},
+                    //       {text: 'OK'},
+                    //   ],
+                    //   { cancelable: true }
+                    // );    
+                  })
+                  .then((responseJson) => {
+
+                    // var textToPrint = "Succeed";
+                    // if(responseJson.fileName)
+                    // {
+                    //   textToPrint = responseJson.fileName;
+                    // }
+                    if(responseJson)
+                    {
+                      Alert.alert(
+                        'Post Request to server',
+                        'Succeed! Got responseJson from server!',
+                        [
+                            // {text: 'Ask me later'},
+                            {text: responseJson['fileName']}
+                        ],
+                        { cancelable: true }
+                      );   
+                    }
+                    else
+                    {
+                      Alert.alert(
+                        'Post Request to server',
+                        'Succeed! Got responseJson from server!',
+                        [
+                            // {text: 'Ask me later'},
+                            {text: 'Succeed but responseJson is Nah'}
+                        ],
+                        { cancelable: true }
+                      );   
+                    }         
+                  })
+                  .catch((error) => {
+                    Alert.alert(
+                      'Post Request to server',
+                      'Failed!',
+                      [
+                          {text: error.toString()},
+                          // {text: error.toString() || error.message.toString() || error.message},
+                      ],
+                      { cancelable: true }
+                    );             
+                    //console.error(error);
+                  });
+
+                  // Alert.alert(
+                  //   'AWS UPLOAD',
+                  //   'Succeed!',
+                  //   [
+                  //     // {text: 'Ask me later'},
+                  //     {text: 'UPLOAD SUCCEEDED'},
+                  //   ],
+                  //   { cancelable: true }
+                  // )                    
                 }
             })
             
@@ -503,14 +585,6 @@ export default class RNcallserver extends Component {
           ],
           { cancelable: true }
         );            
-        // let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        // this.setState({
-        //   isLoading: false,
-        //   dataSource: ds.cloneWithRows(responseJson.movies),
-        // }, function() {
-        //   // do something with new state
-        // });
-
       })
       .catch((error) => {
         Alert.alert(

@@ -107,39 +107,59 @@ app.post('/VideoConversion', function(req, res) {
 app.post('/VideoConversionRN', function(req, res) {
     console.log('VideoConversionRN called');
 
-	// res.setHeader('Content-Type', 'application/json');
+    var param1 = 'NOTHING';
+    
+    if(req.query.fileURL)
+    {
+        param1 = req.query.fileURL;
+    }
+    if(req.body.fileURL)
+    {
+        param1 = req.body.fileURL.toString();
+    }
+    
+    res.setHeader('Content-Type', 'application/json');
+    
+    res.send(JSON.stringify({
+            'fileName': 'SERVERGOT fileURL: '.concat(param1)
+    }));    
 
-    // res.send(JSON.stringify({
-    //     fileName: 'Vid2.mp4'
-    // }));    
-
-    // res.status(201).end();           
-
-    hbjs.spawn({ input: 'Vid2.mp4', output: 'ConvertedToMP4/vid3.mp4', rate: '30' })
-    .on('error', function(err){
-        // res.status(210).end();
-        console.log(err);
-        // invalid user input, no video found etc
-    })
-    .on('progress', function(progress){
-        console.log(
-        'Percent complete: %s, ETA: %s',
-        progress.percentComplete,
-        progress.eta
-        );
-    })
-    .on('complete', function(progress){
-        // res.status(500).end();
-        console.log("COMPLETED!");
+    res.status(201).end();    
 
 
-        // res.send(JSON.stringify({
-        //     fileName: 'Vid2.mp4'
-        // }));    
+	// // res.setHeader('Content-Type', 'application/json');
 
-        res.status(201).end();           
+    // // res.send(JSON.stringify({
+    // //     fileName: 'Vid2.mp4'
+    // // }));    
+
+    // // res.status(201).end();           
+
+    // hbjs.spawn({ input: 'Vid2.mp4', output: 'ConvertedToMP4/vid3.mp4', rate: '30' })
+    // .on('error', function(err){
+    //     // res.status(210).end();
+    //     console.log(err);
+    //     // invalid user input, no video found etc
+    // })
+    // .on('progress', function(progress){
+    //     console.log(
+    //     'Percent complete: %s, ETA: %s',
+    //     progress.percentComplete,
+    //     progress.eta
+    //     );
+    // })
+    // .on('complete', function(progress){
+    //     // res.status(500).end();
+    //     console.log("COMPLETED!");
+
+
+    //     // res.send(JSON.stringify({
+    //     //     fileName: 'Vid2.mp4'
+    //     // }));    
+
+    //     res.status(201).end();           
         
-    });    
+    // });    
     
     
 
