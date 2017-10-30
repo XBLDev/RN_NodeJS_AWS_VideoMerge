@@ -117,14 +117,39 @@ app.post('/VideoConversionRN', function(req, res) {
     {
         param1 = req.body.fileURL.toString();
     }
-    
-    res.setHeader('Content-Type', 'application/json');
-    
-    res.send(JSON.stringify({
-            'fileName': 'SERVERGOT fileURL: '.concat(param1)
-    }));    
 
-    res.status(201).end();    
+    var https = require('https');  
+    var fs = require('fs');    
+    var file = fs.createWriteStream('./'.concat('downloadedImgFile.png'));
+    https.get(param1, function(response) {
+        response.pipe(file);
+        file.on('finish', function() {
+            // console.log('SERVER: ANIMATION DOWNLOADED FROM SERVER: ',Values[0]['storyFileUrls'][0]);
+            file.close();  // close() is async, call cb after close completes.
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify({
+                    // 'fileName': 'SERVER DOWNLOADED FROM: '.concat(param1)
+                    'fileName': 'SERVER DOWNLOADED FROM: '.concat(param1)
+            }));    
+            res.status(201).end();            
+        }).on('error', function(err) { 
+            // console.log(err);
+            // file.close();  // close() is async, call cb after close completes.
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify({
+                    'fileName': 'SERVER Failed to DOWNLOADED FROM: '.concat(param1)
+            }));    
+            res.status(201).end();      
+        });
+    });
+    
+    // res.setHeader('Content-Type', 'application/json');
+    
+    // res.send(JSON.stringify({
+    //         'fileName': 'SERVERGOT fileURL: '.concat(param1)
+    // }));    
+
+    // res.status(201).end();    
 
 
 	// // res.setHeader('Content-Type', 'application/json');

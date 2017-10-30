@@ -33,6 +33,12 @@ the app to first download the remote video and then merge it with the local vide
 The problem with this flow is as stated above: different videos of different formats/FPS values/resolutions cannot 
 be merged unless they are processed to have same properties.
 
+Comment, 30/10/2017, 6:47 pm:
+
+The backend now can download the file with the URL provided by the frontend, and use callback to tell frontend the download is 
+success. But for now the downloaded files still are not readable when uploaded, so the backend cannot use the downloaded files 
+to convert to a specific format. The format when uploading/downloading should be automatically created instead of hardcoded(ONGOING)
+
 Comment, 27/10/2017, 12:43 pm:
 
 Now once the uploading of user video is finished, it sends the upload URL to the Nodejs backend and use callback to get 
