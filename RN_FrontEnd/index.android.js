@@ -16,7 +16,7 @@ import {
   Dimensions,     
   Alert,
   NativeModules,  
-  
+  Image
 } from 'react-native';
 
 import { RNS3 } from 'react-native-aws3';
@@ -52,8 +52,9 @@ export default class RNcallserver extends Component {
       fileuploading:false,
       fileuploadingProgress:0,
       fileuploadingTotal:0,
-      fileStreamChunk: ''
-      
+      fileStreamChunk: '',
+      imageDataLoaded:false,
+      imageDataFinal:''
   }
 
     this.PostRequest = this.PostRequest.bind(this);
@@ -110,6 +111,7 @@ export default class RNcallserver extends Component {
       var s3 = new AWS.S3();
       
       var data='';
+      var imageData='';
       this.setState({fileuploading: true});
 
       // var filestream = 
@@ -163,15 +165,21 @@ export default class RNcallserver extends Component {
             // when encoding is `ascii`, chunk will be an array contains numbers 
             // otherwise it will be a string 
             // data += chunk
-            data = data.concat(chunk.toString());
+            data = data.concat(chunk);            
+            // data = data.concat(chunk.toString());
+            imageData = imageData.concat(chunk);
+            
             // this.setState({fileStreamChunk: chunk.toString()});
             // this.setState({fileStreamChunk: data});            
           })
 
           ifstream.onEnd(() => {
-
+            // data = 'data:image/png;base64,'.concat(data);
+            dataToDisplay = 'data:image/png;base64,'.concat(data);
             // data = 'data:image/png,base64'.concat(data);
-            this.setState({fileStreamChunk: data.length}); 
+            this.setState({fileStreamChunk: data.length});
+            this.setState({imageDataFinal: dataToDisplay, imageDataLoaded: true});
+            
             var uploadparams = {Bucket: myBucket, Key: "testConvertedImgFile.png", Body: data, ACL: "public-read"}; 
             s3.upload(uploadparams, function(err, data) {
                 if(err)
@@ -197,18 +205,21 @@ export default class RNcallserver extends Component {
                   
                   // xhr.open('get', '/news/requestNews?news='+encodeURI(this.state.currentURL)+'&language='+encodeURIComponent(currentLanguage), true);
                   // const data = {videoURL: data.Location};
-                  fetch('http://SOMEURL/VideoConversionRN',{
-                    method: 'POST',
-                    headers: {
-                      'Accept': 'application/json',
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      fileURL: data.Location,
-                    })
+                  //http://54.186.51.153/
+                  var basecodestring = this.state.imageDataFinal;
+
+                  fetch('http://someurl/VideoConversionSaveBased64PNG',{
+                      method: 'POST',
+                      headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                      },
                       // body: JSON.stringify({
                       //   fileURL: data.Location,
                       // })
+                      body: JSON.stringify({
+                        basecode: basecodestring,
+                      })
                     }
                   )
                   .then((response) => {
@@ -239,7 +250,9 @@ export default class RNcallserver extends Component {
                         'Succeed! Got responseJson from server!',
                         [
                             // {text: 'Ask me later'},
-                            {text: responseJson['fileName']}
+                            // {text: responseJson['fileName']}
+                            {text: responseJson['imagesaved']}
+                            
                         ],
                         { cancelable: true }
                       );   
@@ -630,8 +643,8 @@ export default class RNcallserver extends Component {
                 </Text>
           </View>  
 
-          <View style={{width: ScreenWidth, height: ScreenHeight/4, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0000ff'}}>
-                <Text style={{color: 'white'}}>
+          <View style={{width: ScreenWidth, height: ScreenHeight/2, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0000ff'}}>
+                {/* <Text style={{color: 'white'}}>
                     {
                       this.state.fileuploading == false? 
                       (
@@ -639,15 +652,30 @@ export default class RNcallserver extends Component {
                       ):
                       (
                         this.state.fileStreamChunk
-                        // this.state.fileuploadingProgress.toString().concat('/').concat(this.state.fileuploadingTotal.toString())
                       )
                     }
-                </Text>
+                </Text> */}
+                {this.state.imageDataLoaded == false? 
+                (
+                  <Text style={{color: 'white'}}>
+                      no image loaded
+                  </Text>  
+                ):
+                (
+                  // <Image source={{ uri : 'data:image/png,base64' + data }}
+                  // source={{uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAYAAAA6oTAqAAAAEXRFWHRTb2Z0d2FyZQBwbmdjcnVzaEB1SfMAAABQSURBVGje7dSxCQBACARB+2/ab8BEeQNhFi6WSYzYLYudDQYGBgYGBgYGBgYGBgYGBgZmcvDqYGBgmhivGQYGBgYGBgYGBgYGBgYGBgbmQw+P/eMrC5UTVAAAAABJRU5ErkJggg=='}}
+                  
+                   <Image style={{width: ScreenWidth, height: ScreenHeight/2}}
+                   source={{ uri : this.state.imageDataFinal }}
+                   /> 
+                )
+                }
+
           </View>  
 
 
 
-          <View style={{flexDirection:'row', backgroundColor: '#00ff00', justifyContent: 'center', alignItems: 'center', width: ScreenWidth, height: ScreenHeight/2}}>
+          <View style={{flexDirection:'row', backgroundColor: '#00ff00', justifyContent: 'center', alignItems: 'center', width: ScreenWidth, height: ScreenHeight/4}}>
                 <View style={{flexDirection:'column', justifyContent: 'center', alignItems: 'center', width: ScreenWidth/2, backgroundColor: '#00ff00'}}>
                             <TouchableOpacity onPress={this.pickMultiple.bind(this)}>
                                 <View style={{flexDirection:'column', justifyContent: 'center', alignItems: 'center'}}>                      

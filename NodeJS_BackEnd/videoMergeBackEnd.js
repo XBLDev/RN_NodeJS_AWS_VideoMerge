@@ -104,6 +104,47 @@ app.post('/VideoConversion', function(req, res) {
 });
 
 
+//FOLLOWING CODE HERE: https://stackoverflow.com/questions/6926016/nodejs-saving-a-base64-encoded-image-to-disk
+app.post('/VideoConversionSaveBased64PNG', function(req, res) {
+    console.log('VideoConversionSaveBased64PNG called');
+    
+    var param1 = 'NOTHING';
+    
+    if(req.body.basecode)
+    {
+        param1 = req.body.basecode.toString();
+    }
+
+    var base64Data = param1.replace(/^data:image\/png;base64,/, "");
+    
+    require("fs").writeFile("out.png", base64Data, 'base64', function(err) {
+    //   console.log(err);
+
+        if(err)
+        {
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify({
+                    // 'fileName': 'SERVER DOWNLOADED FROM: '.concat(param1)
+                    'imagesaved': 'Out.png NOT saved on server!'
+            }));    
+            res.status(201).end();
+        }
+        else
+        {
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify({
+                    // 'fileName': 'SERVER DOWNLOADED FROM: '.concat(param1)
+                    'imagesaved': 'Out.png saved on server!'
+            }));    
+            res.status(201).end();
+        }     
+    });
+
+});   
+
+
+
+
 app.post('/VideoConversionRN', function(req, res) {
     console.log('VideoConversionRN called');
 

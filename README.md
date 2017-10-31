@@ -33,6 +33,15 @@ the app to first download the remote video and then merge it with the local vide
 The problem with this flow is as stated above: different videos of different formats/FPS values/resolutions cannot 
 be merged unless they are processed to have same properties.
 
+Comment, 31/10/2017, 1:30 pm:
+
+Previously the image buffer that is read by rn fetch blob is not readable because the beginning section it attaches to the buffer 
+after getting all the data from the image is not correct: https://github.com/wkh237/react-native-fetch-blob#user-content-file-stream,
+the correct beginning section example for png is: https://facebook.github.io/react-native/docs/image.html, the first example. The buffer can be passed as URI to Image element to render, However once the buffer is uploaded as a png file the file is still not readable, with
+or without the beginning section.
+
+Experiment of converting base64 to png by sending the buffer to the backend and save it as a png file: https://stackoverflow.com/questions/6926016/nodejs-saving-a-base64-encoded-image-to-disk, gives an error about not finding the state variable that contains the base64 string.
+
 Comment, 30/10/2017, 6:47 pm:
 
 The backend now can download the file with the URL provided by the frontend, and use callback to tell frontend the download is 
