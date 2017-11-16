@@ -1,0 +1,7 @@
+{
+    "moduleFileExtensions" [
+        "js",
+        "jsx"
+    ]
+
+}

@@ -103,8 +103,8 @@ export default class RNcallserver extends Component {
 
       var PATH_TO_THE_FILE = this.state.mobileVideoUrls[0];
       var myBucket = 'videostoconvert';
-      var accessKeyId = "";
-      var secretAccessKey = "";
+      var accessKeyId = "ak";
+      var secretAccessKey = "sak";
       var myCredentials = new AWS.Credentials({accessKeyId: accessKeyId, secretAccessKey: secretAccessKey});
       AWS.config.update({region: 'us-west-2', credentials: myCredentials});
 
@@ -180,7 +180,14 @@ export default class RNcallserver extends Component {
             this.setState({fileStreamChunk: data.length});
             this.setState({imageDataFinal: dataToDisplay, imageDataLoaded: true});
             
-            var uploadparams = {Bucket: myBucket, Key: "testConvertedImgFile.png", Body: data, ACL: "public-read"}; 
+            var uploadparams = {
+              Bucket: myBucket, 
+              Key: "testConvertedImgFile.png", 
+              Body: data, 
+              ACL: "public-read", 
+              ContentEncoding: 'base64',
+              ContentType: 'image/png'
+            }; 
             s3.upload(uploadparams, function(err, data) {
                 if(err)
                 {
@@ -206,20 +213,20 @@ export default class RNcallserver extends Component {
                   // xhr.open('get', '/news/requestNews?news='+encodeURI(this.state.currentURL)+'&language='+encodeURIComponent(currentLanguage), true);
                   // const data = {videoURL: data.Location};
                   //http://54.186.51.153/
-                  var basecodestring = this.state.imageDataFinal;
+                  // var basecodestring = this.state.imageDataFinal;
 
-                  fetch('http://someurl/VideoConversionSaveBased64PNG',{
+                  fetch('http://54.186.51.153/VideoConversionRN',{
                       method: 'POST',
                       headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
                       },
-                      // body: JSON.stringify({
-                      //   fileURL: data.Location,
-                      // })
                       body: JSON.stringify({
-                        basecode: basecodestring,
+                        fileURL: data.Location,
                       })
+                      // body: JSON.stringify({
+                      //   basecode: basecodestring,
+                      // })
                     }
                   )
                   .then((response) => {
@@ -250,8 +257,8 @@ export default class RNcallserver extends Component {
                         'Succeed! Got responseJson from server!',
                         [
                             // {text: 'Ask me later'},
-                            // {text: responseJson['fileName']}
-                            {text: responseJson['imagesaved']}
+                            {text: responseJson['fileName']}
+                            // {text: responseJson['imagesaved']}
                             
                         ],
                         { cancelable: true }
