@@ -33,6 +33,14 @@ the app to first download the remote video and then merge it with the local vide
 The problem with this flow is as stated above: different videos of different formats/FPS values/resolutions cannot 
 be merged unless they are processed to have same properties.
 
+Comment, 16/11/2017, 8:29 pm:
+
+Since previously on RN uploaded files can not be read, the development is shifted to WEB with ReactJS and NodeJS to do experiment with AWS file uploading, which is much faster than doing so on Android.
+
+After following the simple file selection code: https://www.html5rocks.com/en/tutorials/file/dndfiles/, it turns out that at least it can be achieved by web using FileReader.readAsArrayBuffer() to read an image/video, and pass the result ArrayBuffer to S3 as the data buffer for uploading, and no need to specify the encoding in the upload configuration. The CORS configuration has to be configured as specified: https://stackoverflow.com/questions/28568794/amazon-s3-javascript-no-access-control-allow-origin-header-is-present-on-the
+
+Assuming the uploading mechanisms are the same on Android/Web it's reasonable to also assume that if RN can somehow read file also into an ArrayBuffer, then files uploaded to S3 should be readable. One possible solution include: https://www.npmjs.com/package/base64-arraybuffer, or the previous file blob. The other way is to somehow send the image/video data to the backend and let NodeJS convert it to ArrayBuffer, but since some videos can be rather big it may not be a good idea.
+
 Comment, 31/10/2017, 1:30 pm:
 
 Previously the image buffer that is read by rn fetch blob is not readable because the beginning section it attaches to the buffer 
@@ -41,14 +49,6 @@ the correct beginning section example for png is: https://facebook.github.io/rea
 or without the beginning section.
 
 Experiment of converting base64 to png by sending the buffer to the backend and save it as a png file: https://stackoverflow.com/questions/6926016/nodejs-saving-a-base64-encoded-image-to-disk, gives an error about not finding the state variable that contains the base64 string.
-
-Comment, 16/11/2017, 8:29 pm:
-
-Since previously on RN uploaded files can not be read, the development is shifted to WEB with ReactJS and NodeJS to do experiment with AWS file uploading, which is much faster than doing so on Android.
-
-After following the simple file selection code: https://www.html5rocks.com/en/tutorials/file/dndfiles/, it turns out that at least it can be achieved by web using FileReader.readAsArrayBuffer() to read an image/video, and pass the result ArrayBuffer to S3 as the data buffer for uploading, and no need to specify the encoding in the upload configuration. The CORS configuration has to be configured as specified: https://stackoverflow.com/questions/28568794/amazon-s3-javascript-no-access-control-allow-origin-header-is-present-on-the
-
-Assuming the uploading mechanisms are the same on Android/Web it's reasonable to also assume that if RN can somehow read file also into an ArrayBuffer, then files uploaded to S3 should be readable. One possible solution include: https://www.npmjs.com/package/base64-arraybuffer, or the previous file blob. The other way is to somehow send the image/video data to the backend and let NodeJS convert it to ArrayBuffer, but since some videos can be rather big it may not be a good idea.
 
 Comment, 30/10/2017, 6:47 pm:
 
