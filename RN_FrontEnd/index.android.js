@@ -58,6 +58,7 @@ export default class RNcallserver extends Component {
   }
 
     this.PostRequest = this.PostRequest.bind(this);
+    this.uploadAsync = this.uploadAsync.bind(this);
   }
 
   pickMultiple() {
@@ -75,6 +76,157 @@ export default class RNcallserver extends Component {
                   
   }  
 
+
+  upload3(){
+    // var params = {Bucket: 'bucket', Key: 'key'};
+    // s3.getSignedUrl('putObject', params, function (err, url) {
+    //   console.log('The URL is', url);
+    // });
+    var PATH_TO_THE_FILE = this.state.mobileVideoUrls[0];
+    var myBucket = 'videostoconvert';
+    var accessKeyId = "";
+    var secretAccessKey = "";
+    var myCredentials = new AWS.Credentials({accessKeyId: accessKeyId, secretAccessKey: secretAccessKey});
+    AWS.config.update({region: 'us-west-2', credentials: myCredentials});
+    const s3 = new AWS.S3();
+
+    var params = {Bucket: myBucket, Key: 'testuploadvideo.mp4', ContentType: 'video/mp4', ACL: 'public-read'};
+    s3.getSignedUrl('putObject', params, function (err, url) {
+      if(err)
+      {
+        Alert.alert
+        (
+          'Upload Video',
+          'Failed!',
+          [
+            // {text: 'Ask me later'},
+            {text: err},
+          ],
+          { cancelable: true }
+        )   
+      }
+      else
+      {
+      //  console.log('The URL is', url);
+        RNFetchBlob.fetch('PUT', url, {'Content-Type': 'video/mp4'}, RNFetchBlob.wrap(PATH_TO_THE_FILE)
+        )
+        // when response status code is 200
+        .then((res) => {
+          // let jsontext = res.json();
+          // JSON.stringify({});                  // '{}'
+          // let restext = JSON.stringify(res.json());
+          var output = "";
+          for(var property in res) {
+              // alert(property + "=" + obj[property]);
+              output = output.concat(property.toString()).concat(" ");
+          }
+
+          output = url.substring(0, url.lastIndexOf("?"));
+          //https://s3-us-west-2.amazonaws.com/videostoconvert/testuploadvideo.mp4
+          Alert.alert
+          (
+            'Upload Video',
+            'Succeed!',
+            [
+              // {text: 'Ask me later'},
+              {text: output},
+            ],
+            { cancelable: true }
+          );         
+
+          // var output = String(res);
+          // Alert.alert
+          // (
+          //   'Upload Video',
+          //   'Succeed!',
+          //   [
+          //     // {text: 'Ask me later'},
+          //     {text: output},
+          //   ],
+          //   { cancelable: true }
+          // )             
+        })  
+        .catch((errorMessage, statusCode) => {
+          // error handling
+          Alert.alert
+          (
+            'Upload Video',
+            'Failed!',
+            [
+              // {text: 'Ask me later'},
+              {text: errorMessage},
+            ],
+            { cancelable: true }
+          )       
+        })
+        
+      }
+    });
+
+  }
+
+  async uploadAsync() 
+  {
+
+    try {
+
+      var PATH_TO_THE_FILE = this.state.mobileVideoUrls[0];
+      var myBucket = 'videostoconvert';
+      var accessKeyId = "";
+      var secretAccessKey = "";
+      var myCredentials = new AWS.Credentials({accessKeyId: accessKeyId, secretAccessKey: secretAccessKey});
+      AWS.config.update({region: 'us-west-2', credentials: myCredentials});
+      // Configure the AWS SDK with the credentials
+      // AWS.config.update({
+      //   region,
+      //   accessKeyId,
+      //   secretAccessKey,
+      //   sessionToken,
+      // });
+      // AWS.config.update({region: 'us-west-2', credentials: myCredentials});
+
+      // Create a new instance of the S3 API
+      const s3 = new AWS.S3();
+
+      const s3Url = await s3.getSignedUrl('putObject', {
+        Bucket: myBucket,
+        // Key: 'testuploadimage.png',
+        Key: 'testuploadvideo.mp4',
+        ContentType: 'video/mp4',
+      });
+
+      const result = await RNFetchBlob.fetch('PUT', s3Url, {
+        'Content-Type': 'video/mp4'
+      }, RNFetchBlob.wrap(PATH_TO_THE_FILE));
+
+      Alert.alert(
+        'Upload Video',
+        'Success!',
+        [
+          // {text: 'Ask me later'},
+          {text: 's3Url is: '.concat(s3Url)},
+        ],
+        { cancelable: true }
+      )   
+
+    } 
+    catch (e) 
+    {
+      // console.error('Error', e);
+      Alert.alert(
+        'Upload Video',
+        'Failed!',
+        [
+          // {text: 'Ask me later'},
+          {text: e},
+        ],
+        { cancelable: true }
+      )         
+    }
+  }
+  
+  
+  
   uploadFile()
   {
     if(this.state.mobileVideoUrls.length == 0)
@@ -692,7 +844,7 @@ export default class RNcallserver extends Component {
                 </View>
 
                 <View style={{flexDirection:'column', justifyContent: 'center', alignItems: 'center', width: ScreenWidth/2, backgroundColor: '#00ff00'}}>
-                            <TouchableOpacity onPress={this.uploadFile.bind(this)}>
+                            <TouchableOpacity onPress={this.upload3.bind(this)}>
                                 <View style={{flexDirection:'column', justifyContent: 'center', alignItems: 'center'}}>                      
                                       <Text>Begin Merge</Text>
                                 </View>                                                

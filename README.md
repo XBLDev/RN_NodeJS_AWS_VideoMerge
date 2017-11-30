@@ -33,6 +33,16 @@ the app to first download the remote video and then merge it with the local vide
 The problem with this flow is as stated above: different videos of different formats/FPS values/resolutions cannot 
 be merged unless they are processed to have same properties.
 
+Comment, 30/11/2017, 6:47 pm:
+
+For mobile approach, a solution for properly uploading to S3 is found here: https://gist.github.com/tomduncalf/17f57adf5a1343d20b3b3eee11cc7893, the original code works in IOS and it works in Android too.
+
+The solution uses react-native-fetch-blob, which previously was used to generate data buffer for AWS to upload the file. It turns
+out that fetch-blob can use url returned by s3.getSignedUrl and the file path returned by ImagePicker to upload the file, without
+generating any sort of file stream/buffer/blob. This solution by far is the only one that can let RN upload an image or video to S3 and the uploaded files are readable after download.
+
+If later no drawback of this approach is found, the 2nd step of flow of this app can be changed to: AWS get url with s3.getSignedUrl -> fetch-blob uses the file path and the url to upload file to S3
+
 Comment, 16/11/2017, 8:29 pm:
 
 Since previously on RN uploaded files can not be read, the development is shifted to WEB with ReactJS and NodeJS to do experiment with AWS file uploading, which is much faster than doing so on Android.
