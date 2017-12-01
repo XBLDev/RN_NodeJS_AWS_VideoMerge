@@ -147,91 +147,65 @@ app.post('/VideoConversionSaveBased64PNG', function(req, res) {
 
 app.post('/VideoConversionRN', function(req, res) {
     console.log('VideoConversionRN called');
-
-    var param1 = 'NOTHING';
     
-    if(req.query.fileURL)
-    {
-        param1 = req.query.fileURL;
-    }
-    if(req.body.fileURL)
-    {
-        param1 = req.body.fileURL.toString();
-    }
-
-    var https = require('https');  
-    var fs = require('fs');    
-    var file = fs.createWriteStream('./'.concat('downloadedImgFile.png'));
-    https.get(param1, function(response) {
-        response.pipe(file);
-        file.on('finish', function() {
-            // console.log('SERVER: ANIMATION DOWNLOADED FROM SERVER: ',Values[0]['storyFileUrls'][0]);
-            file.close();  // close() is async, call cb after close completes.
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify({
-                    // 'fileName': 'SERVER DOWNLOADED FROM: '.concat(param1)
-                    'fileName': 'SERVER DOWNLOADED FROM: '.concat(param1)
-            }));    
-            res.status(201).end();            
-        }).on('error', function(err) { 
-            // console.log(err);
-            // file.close();  // close() is async, call cb after close completes.
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify({
-                    'fileName': 'SERVER Failed to DOWNLOADED FROM: '.concat(param1)
-            }));    
-            res.status(201).end();      
-        });
-    });
-    
-    // res.setHeader('Content-Type', 'application/json');
-    
-    // res.send(JSON.stringify({
-    //         'fileName': 'SERVERGOT fileURL: '.concat(param1)
-    // }));    
-
-    // res.status(201).end();    
-
-
-	// // res.setHeader('Content-Type', 'application/json');
-
-    // // res.send(JSON.stringify({
-    // //     fileName: 'Vid2.mp4'
-    // // }));    
-
-    // // res.status(201).end();           
-
-    // hbjs.spawn({ input: 'Vid2.mp4', output: 'ConvertedToMP4/vid3.mp4', rate: '30' })
-    // .on('error', function(err){
-    //     // res.status(210).end();
-    //     console.log(err);
-    //     // invalid user input, no video found etc
-    // })
-    // .on('progress', function(progress){
-    //     console.log(
-    //     'Percent complete: %s, ETA: %s',
-    //     progress.percentComplete,
-    //     progress.eta
-    //     );
-    // })
-    // .on('complete', function(progress){
-    //     // res.status(500).end();
-    //     console.log("COMPLETED!");
-
-
-    //     // res.send(JSON.stringify({
-    //     //     fileName: 'Vid2.mp4'
-    //     // }));    
-
-    //     res.status(201).end();           
+        var param1 = 'NOTHING';
         
-    // });    
-    
-    
-
-    // Alert("VideoConversion button pressed!");
-    // console.log('VideoConversion button pressed!');
-    // Run your LED toggling code here
+        if(req.query.fileURL)
+        {
+            param1 = req.query.fileURL;
+        }
+        if(req.body.fileURL)
+        {
+            param1 = req.body.fileURL.toString();
+        }
+        
+        var https = require('https');  
+        var fs = require('fs');    
+        var file = fs.createWriteStream('./'.concat('downloadedVideoFile.mp4'));
+        https.get(param1, function(response) {
+            response.pipe(file);
+            file.on('finish', function() {
+                // console.log('SERVER: ANIMATION DOWNLOADED FROM SERVER: ',Values[0]['storyFileUrls'][0]);
+                file.close();  // close() is async, call cb after close completes.
+                hbjs.spawn({ input: 'downloadedVideoFile.mp4', output: 'ConvertedToMP4/convertedVideo.mp4', rate: '30' })
+                .on('error', function(err){
+                    // res.status(210).end();
+                    console.log(err);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.send(JSON.stringify({
+                            'fileName': 'SERVER Failed to CONVERT: '.concat(param1)
+                    }));    
+                    res.status(201).end();      
+                    // invalid user input, no video found etc
+                })
+                .on('progress', function(progress){
+                    console.log(
+                    'Percent complete: %s, ETA: %s',
+                    progress.percentComplete,
+                    progress.eta
+                    );
+                })
+                .on('complete', function(progress){
+                    // res.status(500).end();
+                    console.log("COMPLETED!");
+                    res.setHeader('Content-Type', 'application/json');
+                    res.send(JSON.stringify({
+                            // 'fileName': 'SERVER DOWNLOADED FROM: '.concat(param1)
+                            'fileName': 'SERVER CONVERTED FILE DOWNLOADED FROM: '.concat(param1)
+                    }));    
+                    res.status(201).end();         
+                });    
+            })
+            .on('error', function(err) { 
+                // console.log(err);
+                // file.close();  // close() is async, call cb after close completes.
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify({
+                        'fileName': 'SERVER Failed to DOWNLOADED FROM: '.concat(param1)
+                }));    
+                res.status(201).end();      
+            });
+        });
 });
 
 

@@ -108,31 +108,84 @@ export default class RNcallserver extends Component {
       else
       {
       //  console.log('The URL is', url);
-        RNFetchBlob.fetch('PUT', url, {'Content-Type': 'video/mp4'}, RNFetchBlob.wrap(PATH_TO_THE_FILE)
-        )
+        RNFetchBlob.fetch('PUT', url, {'Content-Type': 'video/mp4'}, RNFetchBlob.wrap(PATH_TO_THE_FILE))
         // when response status code is 200
         .then((res) => {
           // let jsontext = res.json();
           // JSON.stringify({});                  // '{}'
           // let restext = JSON.stringify(res.json());
-          var output = "";
-          for(var property in res) {
-              // alert(property + "=" + obj[property]);
-              output = output.concat(property.toString()).concat(" ");
-          }
+          // var output = "";
+          // for(var property in res) {
+          //     // alert(property + "=" + obj[property]);
+          //     output = output.concat(property.toString()).concat(" ");
+          // }
 
           output = url.substring(0, url.lastIndexOf("?"));
-          //https://s3-us-west-2.amazonaws.com/videostoconvert/testuploadvideo.mp4
-          Alert.alert
-          (
-            'Upload Video',
-            'Succeed!',
+
+
+          fetch('http://ip/VideoConversionRN',{
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              fileURL: "someurl",
+            })
+
+          }
+        )
+        .then((response) => {
+          // response.json();
+          return response.json();
+        })
+        .then((responseJson) => {
+
+          if(responseJson)
+          {
+            Alert.alert(
+              'Post Request to server',
+              'Succeed! Got responseJson from server!',
+              [
+                  {text: responseJson['fileName']}                  
+              ],
+              { cancelable: true }
+            );   
+          }
+          else
+          {
+            Alert.alert(
+              'Post Request to server',
+              'Succeed! Got responseJson from server!',
+              [
+                  {text: 'Succeed but responseJson is Nah'}
+              ],
+              { cancelable: true }
+            );   
+          }         
+        })
+        .catch((error) => {
+          Alert.alert(
+            'Post Request to server',
+            'Failed!',
             [
-              // {text: 'Ask me later'},
-              {text: output},
+                {text: error.toString()},
             ],
             { cancelable: true }
-          );         
+          );             
+        });
+
+
+          // Alert.alert
+          // (
+          //   'Upload Video',
+          //   'Succeed!',
+          //   [
+          //     // {text: 'Ask me later'},
+          //     {text: output},
+          //   ],
+          //   { cancelable: true }
+          // );         
 
           // var output = String(res);
           // Alert.alert
@@ -362,12 +415,11 @@ export default class RNcallserver extends Component {
                   //   body:body
                   // })
                   
-                  // xhr.open('get', '/news/requestNews?news='+encodeURI(this.state.currentURL)+'&language='+encodeURIComponent(currentLanguage), true);
                   // const data = {videoURL: data.Location};
-                  //http://54.186.51.153/
+                  //
                   // var basecodestring = this.state.imageDataFinal;
 
-                  fetch('http://54.186.51.153/VideoConversionRN',{
+                  fetch('http://ip/VideoConversionRN',{
                       method: 'POST',
                       headers: {
                         'Accept': 'application/json',

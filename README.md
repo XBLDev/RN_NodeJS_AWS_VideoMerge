@@ -10,10 +10,11 @@ be of the same FPS and resolution, this app can be valuable for people who want 
 videos are of different FPS/resolution. Video merging with RN but only with videos of same FPS and resolution can be 
 found at: https://github.com/XBLDev/onMyWayBecomingFullStack/tree/master/ReactNativeRelated/ReactNativeNav
 
-Basic flow and structure of this app, 25/10/2017, 7:43pm:
+Basic flow and structure of this app, 01/12/2017, 2:53pm:
 1. On RN frontend, choose a video the user wants to convert with package: https://www.npmjs.com/package/react-native-image-crop-picker (DONE)
-2. Once a file is chosen, first generate a buffer with react-native-fetch-blob: https://www.npmjs.com/package/react-native-fetch-blob, and once the buffer is created, 
-use AWS SDK for React Native to upload the file to S3 bucket: https://github.com/aws/aws-sdk-js (ONGOING) 
+2. Once a file is chosen, first use AWS SDK for React Native(https://github.com/aws/aws-sdk-js) s3.getSignedUrl to get an URL, 
+and RN fetch blob(https://www.npmjs.com/package/react-native-fetch-blob) use this URL and the file path to upload the video to 
+S3. The idea comes from: https://gist.github.com/tomduncalf/17f57adf5a1343d20b3b3eee11cc7893
 3. Once uploaded the video, in the callback function, use fetch to send POST reqeust to the NodeJS backend, sample code: https://facebook.github.io/react-native/docs/network.html, send the uploaded video's S3 URL as a parameter. (DONE)
 4. Create an Ubuntu Server instance on Amazon EC2. Because we want to use handbrakejs: https://github.com/75lb/handbrake-js, and handbrakejs only runs on ubuntu/windows. Previous failed attempt of trying to run handbrakejs on other types of server is also on my git.(DONE)
 5. Install handbrakejs on Ubuntu server by following the instructions: https://github.com/75lb/handbrake-js (DONE)
@@ -32,6 +33,18 @@ the app to first download the remote video and then merge it with the local vide
 
 The problem with this flow is as stated above: different videos of different formats/FPS values/resolutions cannot 
 be merged unless they are processed to have same properties.
+
+Comment, 01/12/2017, 2:41 pm:
+
+The approach of using AWS to get an URL for fetch-blob to upload video properly has one drawback: because the callback 
+function is for fetch-blob not AWS s3, the returned result doesn't return the upload folder, which is essential for the backend
+to download the file and convert it. For now the URL for the uploaded file is hardcoded since the URL which is the combination of 
+the bucket URL and the filename is already known, not a good solution but at least it solves the problem.
+
+The 2nd step of app flow is changed to reflect the switch between AWS and fetch-blob.
+
+Now the backend can download the file using the URL properly and convert it using FPS/resolution settings, however the converted
+video is rotated 90 degree left, which should be a minor problem to solve.
 
 Comment, 30/11/2017, 6:47 pm:
 
